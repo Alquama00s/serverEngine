@@ -56,6 +56,11 @@ func (p *Principal) GetUserName() string {
 func (p *Principal) GetToken() string {
 	return p.rawToken
 }
+
+func (p *Principal) GetUserId() uint {
+	return p.userId
+}
+
 func (p *Principal) GetTokenType() string {
 	return p.tokenType
 }
