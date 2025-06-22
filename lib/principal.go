@@ -1,6 +1,7 @@
 package lib
 
 type Principal struct {
+	userId          uint
 	userName        string
 	rawToken        string
 	token           interface{}
@@ -13,6 +14,13 @@ type Principal struct {
 var (
 	guest = NewPrincipal("__guest", "None", "None", nil, nil, nil)
 )
+
+func NewSimplePrincipal(userName string, userID uint) *Principal {
+	return &Principal{
+		userId:   userID,
+		userName: userName,
+	}
+}
 
 func NewPrincipal(userName, rawToken, tokenType string, privilege, role map[string]struct{}, token interface{}) *Principal {
 	return &Principal{
