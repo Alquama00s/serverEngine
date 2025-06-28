@@ -26,7 +26,7 @@ func Unmarshal[T any](r *lib.Request) (*T, error) {
 	if len(r.RawBody) > 0 {
 		json.Unmarshal(r.RawBody, &result)
 
-		r.Body = result
+		r.Body = &result
 	}
 
 	log.Info().Interface("result", result)
