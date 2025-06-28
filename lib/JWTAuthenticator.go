@@ -108,7 +108,7 @@ func (j *JWTAuthenticator) ParsePrincipal(req *Request) error {
 	}
 
 	req.RequestPrincipal = NewAuthenticatedPrincipal(claim.Subject, authHeader[7:],
-		"Bearer", priv, role, claim)
+		"Bearer", claim.UserId, priv, role, claim)
 
 	return nil
 }

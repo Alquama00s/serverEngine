@@ -12,7 +12,7 @@ type Principal struct {
 }
 
 var (
-	guest = NewPrincipal("__guest", "None", "None", nil, nil, nil)
+	guest = NewPrincipal("__guest", "None", "None", 0, nil, nil, nil)
 )
 
 func NewSimplePrincipal(userName string, userID uint) *Principal {
@@ -22,8 +22,9 @@ func NewSimplePrincipal(userName string, userID uint) *Principal {
 	}
 }
 
-func NewPrincipal(userName, rawToken, tokenType string, privilege, role map[string]struct{}, token interface{}) *Principal {
+func NewPrincipal(userName, rawToken, tokenType string, userId uint, privilege, role map[string]struct{}, token interface{}) *Principal {
 	return &Principal{
+		userId:     userId,
 		userName:   userName,
 		rawToken:   rawToken,
 		token:      token,
@@ -33,8 +34,9 @@ func NewPrincipal(userName, rawToken, tokenType string, privilege, role map[stri
 	}
 }
 
-func NewAuthenticatedPrincipal(userName, rawToken, tokenType string, privilege, role map[string]struct{}, token interface{}) *Principal {
+func NewAuthenticatedPrincipal(userName, rawToken, tokenType string, userId uint, privilege, role map[string]struct{}, token interface{}) *Principal {
 	return &Principal{
+		userId:          userId,
 		userName:        userName,
 		rawToken:        rawToken,
 		token:           token,
