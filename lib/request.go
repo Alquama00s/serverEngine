@@ -25,5 +25,8 @@ func (r *Request) GetMetaData(key string) interface{} {
 }
 
 func (r *Request) SetMetaData(key string, value interface{}) {
+	if r.metaData == nil {
+		r.metaData = make(map[string]interface{})
+	}
 	r.metaData[key] = value
 }
