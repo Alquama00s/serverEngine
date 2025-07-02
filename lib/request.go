@@ -13,4 +13,17 @@ type Request struct {
 	RequestPrincipal *Principal
 	QueryParam       map[string]string
 	Logger           *zerolog.Logger
+	metaData         map[string]interface{}
+}
+
+func (r *Request) GetMetaData(key string) interface{} {
+	m, ok := r.metaData[key]
+	if ok {
+		return m
+	}
+	return nil
+}
+
+func (r *Request) SetMetaData(key string, value interface{}) {
+	r.metaData[key] = value
 }
