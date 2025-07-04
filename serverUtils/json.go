@@ -24,8 +24,10 @@ func Unmarshal[T any](r *lib.Request) (*T, error) {
 	}
 
 	if len(r.RawBody) > 0 {
-		json.Unmarshal(r.RawBody, &result)
-
+		err := json.Unmarshal(r.RawBody, &result)
+		if err != nil {
+			return nil, err
+		}
 		r.Body = &result
 	}
 
