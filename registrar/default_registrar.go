@@ -2,6 +2,7 @@ package registrar
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/Alquama00s/serverEngine/lib"
 	"github.com/Alquama00s/serverEngine/loggerFactory"
@@ -53,7 +54,7 @@ func (r *DefaultRegistrar) FinalizeRoutes() {
 	for _, router := range r.Routers {
 		for _, route := range router.Routes {
 			if route.GetController() != nil {
-				http.HandleFunc(route.GetMethod()+" "+router.PathPrefix+route.GetPath(),
+				http.HandleFunc(route.GetMethod()+" "+strings.TrimSuffix(router.PathPrefix+route.GetPath(), "/"),
 					r.Handler.GetHandler(route.GetController()),
 				)
 
