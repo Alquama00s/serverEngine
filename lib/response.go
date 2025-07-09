@@ -9,6 +9,7 @@ import (
 type Response struct {
 	StatusCode int
 	Headers    *http.Header
+	Request    *Request
 	Body       interface{}
 	Logger     *zerolog.Logger
 }

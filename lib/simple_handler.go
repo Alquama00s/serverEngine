@@ -94,7 +94,7 @@ func (sh *SimpleHandler) GetHandler(controller func(*Request) (*Response, error)
 			return
 		}
 		res.Logger = req.Logger
-
+		res.Request = req
 		for _, rp := range sh.GetResponseProcessors(r.URL.Path) {
 			tempRes, processingError = rp.GetProcessor()(res)
 			if tempRes != nil {
