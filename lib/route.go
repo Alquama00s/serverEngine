@@ -13,9 +13,6 @@ func (r *Route) Handeler(handeler func(*Request) (*Response, error)) *Route {
 	if r.controller != nil {
 		panic("handeler already set")
 	}
-	if r.path == "" {
-		panic("path cannot be empty")
-	}
 	r.controller = handeler
 	return r
 }
