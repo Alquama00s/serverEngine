@@ -45,7 +45,7 @@ func (r *DefaultRegistrar) RegisterInitializers(inits ...lib.Initializers) {
 	r.initializerList = append(r.initializerList, inits...)
 }
 
-func (r *DefaultRegistrar) FinalizeRoutes() {
+func (r *DefaultRegistrar) FinalizeRoutes(mx *http.ServeMux) {
 	logger.Info().Msg("Finalizing routes...")
 	for _, cs := range r.controllerSetList {
 		cs.Controllers()
@@ -54,7 +54,7 @@ func (r *DefaultRegistrar) FinalizeRoutes() {
 	for _, router := range r.Routers {
 		for _, route := range router.Routes {
 			if route.GetController() != nil {
-				http.HandleFunc(route.GetMethod()+" "+strings.TrimSuffix(router.PathPrefix+route.GetPath(), "/"),
+				mx.HandleFunc(route.GetMethod()+" "+strings.TrimSuffix(router.PathPrefix+route.GetPath(), "/"),
 					r.Handler.GetHandler(route.GetController()),
 				)
 
