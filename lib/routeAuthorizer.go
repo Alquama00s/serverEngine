@@ -87,6 +87,9 @@ func (sr *SimpleRouteAuthorizer) GetRequestProcessor() RequestProcessor {
 		req.Logger.Info().
 			Str("pkg", "serverEngine.lib.SimpleRouteAuthorizer").
 			Msg("Performing Authorization")
+		if req.RawRequest.Method == http.MethodOptions {
+			return req, nil, nil
+		}
 
 		if req.RequestPrincipal == nil || !req.RequestPrincipal.IsAuthenticated() {
 			return req, nil, NewRestResponse().
