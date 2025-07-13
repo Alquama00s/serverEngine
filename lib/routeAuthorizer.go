@@ -87,7 +87,13 @@ func (sr *SimpleRouteAuthorizer) GetRequestProcessor() RequestProcessor {
 		req.Logger.Info().
 			Str("pkg", "serverEngine.lib.SimpleRouteAuthorizer").
 			Msg("Performing Authorization")
+		req.Logger.Info().
+			Str("pkg", "serverEngine.lib.SimpleRouteAuthorizer").
+			Msg(req.RawRequest.Method)
 		if req.RawRequest.Method == http.MethodOptions {
+			req.Logger.Info().
+				Str("pkg", "serverEngine.lib.SimpleRouteAuthorizer").
+				Msg("omitting for options")
 			return req, nil, nil
 		}
 
