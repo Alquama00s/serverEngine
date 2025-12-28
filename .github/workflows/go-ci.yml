@@ -34,7 +34,7 @@ jobs:
         run: go test ./... -coverprofile=coverage.out
 
       - name: debug
-        runL: ls -alh
+        run: ls -alh
       
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v6
