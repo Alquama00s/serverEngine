@@ -13,6 +13,7 @@ jobs:
   test:
     name: Run Go Tests
     runs-on: ubuntu-latest
+    environment: sonar
 
     steps:
       - name: Checkout code
