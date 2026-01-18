@@ -197,9 +197,3 @@ The server listens on port 8080 by default.
 No license specified in the repository. Add a license file if you intend to publish this project.
 
 ---
-
-If you'd like, I can also:
-- add a small `examples/main.go` that demonstrates a fully working app and route set, or
-- add a `Makefile` and convenience scripts for local development.
-
-Tell me which example you'd like and I can create it next.
