@@ -1,7 +1,7 @@
 package lib
 
 type Principal struct {
-	userId          uint
+	userId          string
 	userName        string
 	rawToken        string
 	token           interface{}
@@ -12,17 +12,17 @@ type Principal struct {
 }
 
 var (
-	guest = NewPrincipal("__guest", "None", "None", 0, nil, nil, nil)
+	guest = NewPrincipal("__guest", "None", "None", "0", nil, nil, nil)
 )
 
-func NewSimplePrincipal(userName string, userID uint) *Principal {
+func NewSimplePrincipal(userName string, userID string) *Principal {
 	return &Principal{
 		userId:   userID,
 		userName: userName,
 	}
 }
 
-func NewPrincipal(userName, rawToken, tokenType string, userId uint, privilege, role map[string]struct{}, token interface{}) *Principal {
+func NewPrincipal(userName, rawToken, tokenType string, userId string, privilege, role map[string]struct{}, token interface{}) *Principal {
 	return &Principal{
 		userId:     userId,
 		userName:   userName,
@@ -34,7 +34,7 @@ func NewPrincipal(userName, rawToken, tokenType string, userId uint, privilege, 
 	}
 }
 
-func NewAuthenticatedPrincipal(userName, rawToken, tokenType string, userId uint, privilege, role map[string]struct{}, token interface{}) *Principal {
+func NewAuthenticatedPrincipal(userName, rawToken, tokenType string, userId string, privilege, role map[string]struct{}, token interface{}) *Principal {
 	return &Principal{
 		userId:          userId,
 		userName:        userName,
@@ -59,7 +59,7 @@ func (p *Principal) GetToken() string {
 	return p.rawToken
 }
 
-func (p *Principal) GetUserId() uint {
+func (p *Principal) GetUserId() string {
 	return p.userId
 }
 
