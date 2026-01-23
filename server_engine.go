@@ -16,6 +16,7 @@ var (
 	routeRegistrar *registrar.DefaultRegistrar
 	once           sync.Once
 	logger         = loggerFactory.GetLogger()
+	serverPort     = "8080"
 )
 
 func Registrar() *registrar.DefaultRegistrar {
@@ -55,6 +56,10 @@ func LoggingMiddleware(next http.Handler) http.Handler {
 	})
 }
 
+func Port(port int) {
+	serverPort = string(port)
+}
+
 func Sereve() {
 	mx := http.NewServeMux()
 	logger.Info().Msg("Starting server...")
@@ -62,5 +67,5 @@ func Sereve() {
 	routeRegistrar.FinalizeRoutes(mx)
 	logger.Info().Msg("Server is running on port 8080")
 	lmx := LoggingMiddleware(mx)
-	log.Fatal(http.ListenAndServe(":8080", lmx))
+	log.Fatal(http.ListenAndServe(":"+serverPort, lmx))
 }
