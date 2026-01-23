@@ -65,7 +65,7 @@ func Sereve() {
 	logger.Info().Msg("Starting server...")
 	routeRegistrar.Initialize()
 	routeRegistrar.FinalizeRoutes(mx)
-	logger.Info().Msg("Server is running on port 8080")
+	logger.Info().Msg("Server is running on port " + serverPort)
 	lmx := LoggingMiddleware(mx)
 	log.Fatal(http.ListenAndServe(":"+serverPort, lmx))
 }
