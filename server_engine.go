@@ -3,6 +3,7 @@ package serverEngine
 import (
 	"log"
 	"net/http"
+	"strconv"
 	"sync"
 	"time"
 
@@ -57,7 +58,7 @@ func LoggingMiddleware(next http.Handler) http.Handler {
 }
 
 func Port(port int) {
-	serverPort = string(port)
+	serverPort = strconv.Itoa(port)
 }
 
 func Sereve() {
