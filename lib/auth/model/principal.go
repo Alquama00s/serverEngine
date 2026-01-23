@@ -138,6 +138,14 @@ func (p *Principal) AndRoleAuth(requiredPermissions ...string) bool {
 	return permited == len(requiredPermissions)
 }
 
+func (p *Principal) Authenticate() {
+	p.isAuthenticated = true
+}
+
+func (p *Principal) Apply(req *routingModel.Request) {
+	req.SetMetaData("auth.principal", p)
+}
+
 func ParsePrincipal(req *routingModel.Request) *Principal {
 	var principal = req.GetMetaData("auth.principal")
 	if principal == nil {
