@@ -1,4 +1,8 @@
-package lib
+package authModel
+
+import (
+	routingModel "github.com/Alquama00s/serverEngine/lib/routing/model"
+)
 
 type Principal struct {
 	userId          string
@@ -132,4 +136,12 @@ func (p *Principal) AndRoleAuth(requiredPermissions ...string) bool {
 
 	}
 	return permited == len(requiredPermissions)
+}
+
+func ParsePrincipal(req *routingModel.Request) *Principal {
+	var principal = req.GetMetaData("auth.principal")
+	if principal == nil {
+		return nil
+	}
+	return principal.(*Principal)
 }

@@ -1,4 +1,4 @@
-package lib
+package DI
 
 type Initializers interface {
 	Init()

@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"io"
 
-	"github.com/Alquama00s/serverEngine/lib"
+	routingModel "github.com/Alquama00s/serverEngine/lib/routing/model"
 	"github.com/rs/zerolog/log"
 )
 
-func Unmarshal[T any](r *lib.Request) (*T, error) {
+func Unmarshal[T any](r *routingModel.Request) (*T, error) {
 	var result T
 
 	if len(r.RawBody) == 0 && r.RawRequest.Body != nil {

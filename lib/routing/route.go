@@ -1,12 +1,14 @@
-package lib
+package routing
+
+import routingModel "github.com/Alquama00s/serverEngine/lib/routing/model"
 
 type Route struct {
-	controller func(*Request) (*Response, error)
+	controller func(*routingModel.Request) (*routingModel.Response, error)
 	method     string
 	path       string
 }
 
-func (r *Route) Handeler(handeler func(*Request) (*Response, error)) *Route {
+func (r *Route) Handeler(handeler func(*routingModel.Request) (*routingModel.Response, error)) *Route {
 	if handeler == nil {
 		panic("handeler cannot be nil")
 	}
@@ -35,6 +37,6 @@ func (r *Route) GetMethod() string {
 func (r *Route) GetPath() string {
 	return r.path
 }
-func (r *Route) GetController() func(*Request) (*Response, error) {
+func (r *Route) GetController() func(*routingModel.Request) (*routingModel.Response, error) {
 	return r.controller
 }

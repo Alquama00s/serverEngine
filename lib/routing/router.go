@@ -1,4 +1,4 @@
-package lib
+package routing
 
 type Router struct {
 	PathPrefix string

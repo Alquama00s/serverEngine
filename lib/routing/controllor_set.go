@@ -1,4 +1,4 @@
-package lib
+package routing
 
 type ControllerSet interface {
 	Controllers()

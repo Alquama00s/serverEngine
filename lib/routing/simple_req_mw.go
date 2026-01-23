@@ -1,19 +1,23 @@
-package lib
+package routing
 
-import "regexp"
+import (
+	"regexp"
+
+	routingModel "github.com/Alquama00s/serverEngine/lib/routing/model"
+)
 
 type SimpleReqMiddleWare struct {
 	regExString      string
 	regex            *regexp.Regexp
-	RequestProcessor func(req *Request) (*Request, error, *Response)
+	RequestProcessor func(req *routingModel.Request) (*routingModel.Request, error, *routingModel.Response)
 	Priority         int
 }
 
-func (s *SimpleReqMiddleWare) Process(fun func(req *Request) (*Request, error, *Response)) {
+func (s *SimpleReqMiddleWare) Process(fun func(req *routingModel.Request) (*routingModel.Request, error, *routingModel.Response)) {
 	s.RequestProcessor = fun
 }
 
-func (s *SimpleReqMiddleWare) GetProcessor() func(req *Request) (*Request, error, *Response) {
+func (s *SimpleReqMiddleWare) GetProcessor() func(req *routingModel.Request) (*routingModel.Request, error, *routingModel.Response) {
 	return s.RequestProcessor
 }
 

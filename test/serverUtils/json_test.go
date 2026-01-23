@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/Alquama00s/serverEngine/lib"
-	"github.com/Alquama00s/serverEngine/serverUtils"
+	routingModel "github.com/Alquama00s/serverEngine/lib/routing/model"
+	"github.com/Alquama00s/serverEngine/lib/utils/serverUtils"
 )
 
 type TestStruct struct {
@@ -16,7 +16,7 @@ type TestStruct struct {
 }
 
 func TestUnmarshal_Success_WithRawBody(t *testing.T) {
-	req := &lib.Request{
+	req := &routingModel.Request{
 		RawBody: []byte(`{"name":"test","value":42}`),
 	}
 
@@ -37,7 +37,7 @@ func TestUnmarshal_Success_WithRawBody(t *testing.T) {
 func TestUnmarshal_Success_ReadFromBody(t *testing.T) {
 	body := `{"name":"fromBody","value":123}`
 	httpReq, _ := http.NewRequest("POST", "/", bytes.NewReader([]byte(body)))
-	req := &lib.Request{
+	req := &routingModel.Request{
 		RawRequest: httpReq,
 	}
 
@@ -63,7 +63,7 @@ func TestUnmarshal_ReadBodyError(t *testing.T) {
 	// Create a reader that returns an error
 	reader := &errorReader{err: errors.New("read error")}
 	httpReq, _ := http.NewRequest("POST", "/", reader)
-	req := &lib.Request{
+	req := &routingModel.Request{
 		RawRequest: httpReq,
 	}
 
@@ -78,7 +78,7 @@ func TestUnmarshal_ReadBodyError(t *testing.T) {
 }
 
 func TestUnmarshal_InvalidJSON(t *testing.T) {
-	req := &lib.Request{
+	req := &routingModel.Request{
 		RawBody: []byte(`{"name":"test","value":"invalid"}`), // value should be int
 	}
 

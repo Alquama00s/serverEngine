@@ -4,8 +4,11 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/Alquama00s/serverEngine/lib"
-	"github.com/Alquama00s/serverEngine/loggerFactory"
+	routingI "github.com/Alquama00s/serverEngine/lib/routing/interface"
+
+	DI "github.com/Alquama00s/serverEngine/lib/DI"
+	"github.com/Alquama00s/serverEngine/lib/logging/loggerFactory"
+	routing "github.com/Alquama00s/serverEngine/lib/routing"
 )
 
 var (
@@ -13,34 +16,34 @@ var (
 )
 
 type DefaultRegistrar struct {
-	Routers           map[string]*lib.Router
-	controllerSetList []lib.ControllerSet
-	initializerList   []lib.Initializers
-	Handler           lib.Handler
+	Routers           map[string]*routing.Router
+	controllerSetList []routing.ControllerSet
+	initializerList   []DI.Initializers
+	Handler           routingI.Handler
 }
 
-func (r *DefaultRegistrar) Router(prefix string) *lib.Router {
+func (r *DefaultRegistrar) Router(prefix string) *routing.Router {
 	if val, exist := r.Routers[prefix]; exist {
 		return val
 	}
-	router := &lib.Router{
+	router := &routing.Router{
 		PathPrefix: prefix,
-		Routes:     []*lib.Route{},
+		Routes:     []*routing.Route{},
 	}
 	r.Routers[prefix] = router
 	return router
 }
 
-func (r *DefaultRegistrar) RegisterControllerSet(cs ...lib.ControllerSet) {
+func (r *DefaultRegistrar) RegisterControllerSet(cs ...routing.ControllerSet) {
 	if r.controllerSetList == nil {
-		r.controllerSetList = make([]lib.ControllerSet, 0)
+		r.controllerSetList = make([]routing.ControllerSet, 0)
 	}
 	r.controllerSetList = append(r.controllerSetList, cs...)
 }
 
-func (r *DefaultRegistrar) RegisterInitializers(inits ...lib.Initializers) {
+func (r *DefaultRegistrar) RegisterInitializers(inits ...DI.Initializers) {
 	if r.initializerList == nil {
-		r.initializerList = make([]lib.Initializers, 0)
+		r.initializerList = make([]DI.Initializers, 0)
 	}
 	r.initializerList = append(r.initializerList, inits...)
 }

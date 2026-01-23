@@ -1,4 +1,4 @@
-package lib
+package auth
 
 import (
 	"crypto/rand"
@@ -8,6 +8,8 @@ import (
 	"sync"
 	"time"
 
+	authModel "github.com/Alquama00s/serverEngine/lib/auth/model"
+	routingModel "github.com/Alquama00s/serverEngine/lib/routing/model"
 	"github.com/go-jose/go-jose/v4"
 	"github.com/go-jose/go-jose/v4/jwt"
 	"github.com/google/uuid"
@@ -22,7 +24,7 @@ type JWTAuthenticator struct {
 type JWTClaims struct {
 	Roles     []string
 	Privilege []string
-	UserId    uint
+	UserId    string
 	jwt.Claims
 }
 
@@ -62,27 +64,27 @@ func NewJwtAuthenticator() *JWTAuthenticator {
 	return newJWTAuthenticator
 }
 
-func (j *JWTAuthenticator) ParsePrincipal(req *Request) error {
+func (j *JWTAuthenticator) ParsePrincipal(req *routingModel.Request) error {
 	if req == nil || req.RawRequest == nil {
-		return NewErrorMessage(INVALID_CREDS)
+		return routingModel.NewErrorMessage(INVALID_CREDS)
 	}
 
 	authHeader := req.RawRequest.Header.Get("Authorization")
 	if authHeader == "" {
-		req.RequestPrincipal = GuestPrincipal()
+		req.SetMetaData("auth.principal", authModel.GuestPrincipal())
 		return nil
 	}
 
 	if len(authHeader) < 7 || authHeader[:7] != "Bearer " {
-		return NewErrorMessage(INVALID_CREDS)
+		return routingModel.NewErrorMessage(INVALID_CREDS)
 	}
 
 	parsedJwt, err := jwt.ParseSigned(authHeader[7:], j.signatureAlgorithms)
 	if err != nil {
-		return NewErrorMessage(INVALID_CREDS)
+		return routingModel.NewErrorMessage(INVALID_CREDS)
 	}
 	if len(parsedJwt.Headers[0].KeyID) < 36 {
-		return NewErrorMessage(INVALID_CREDS)
+		return routingModel.NewErrorMessage(INVALID_CREDS)
 	}
 	kIndex, err := strconv.Atoi(string(parsedJwt.Headers[0].KeyID[36]))
 	if err != nil {
@@ -93,7 +95,7 @@ func (j *JWTAuthenticator) ParsePrincipal(req *Request) error {
 		Claims(&(j.webKeys[kIndex].Key.(*rsa.PrivateKey).PublicKey), &claim)
 
 	if err != nil {
-		return NewErrorMessage(INVALID_CREDS)
+		return routingModel.NewErrorMessage(INVALID_CREDS)
 	}
 
 	priv := make(map[string]struct{})
@@ -107,8 +109,8 @@ func (j *JWTAuthenticator) ParsePrincipal(req *Request) error {
 		priv[p] = struct{}{}
 	}
 
-	req.RequestPrincipal = NewAuthenticatedPrincipal(claim.Subject, authHeader[7:],
-		"Bearer", claim.UserId, priv, role, claim)
+	req.SetMetaData("auth.principal", authModel.NewAuthenticatedPrincipal(claim.Subject, authHeader[7:],
+		"Bearer", claim.UserId, priv, role, claim))
 
 	return nil
 }
@@ -126,7 +128,7 @@ func (j *JWTAuthenticator) CreateToken(priv, role []string, userId uint, userNam
 	claims := JWTClaims{
 		Roles:     role,
 		Privilege: priv,
-		UserId:    userId,
+		UserId:    string(userId),
 		Claims: jwt.Claims{
 			Issuer:    "assist",
 			Audience:  []string{userName},

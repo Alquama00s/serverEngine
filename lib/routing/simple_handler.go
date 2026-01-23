@@ -1,4 +1,4 @@
-package lib
+package routing
 
 import (
 	"encoding/json"
@@ -6,7 +6,10 @@ import (
 	"net/http"
 	"sort"
 
-	"github.com/Alquama00s/serverEngine/loggerFactory"
+	routingI "github.com/Alquama00s/serverEngine/lib/routing/interface"
+	routingModel "github.com/Alquama00s/serverEngine/lib/routing/model"
+
+	"github.com/Alquama00s/serverEngine/lib/logging/loggerFactory"
 )
 
 var (
@@ -14,15 +17,15 @@ var (
 )
 
 type SimpleHandler struct {
-	requestMiddlewares  []RequestProcessor
-	responseMiddlewares []ResponseProcessor
-	errorHandler        *func(error, *Request, *Response) error
+	requestMiddlewares  []routingI.RequestProcessor
+	responseMiddlewares []routingI.ResponseProcessor
+	errorHandler        *func(error, *routingModel.Request, *routingModel.Response) error
 }
 
 func handleError(w http.ResponseWriter, err error) {
 	w.Header().Add("Content-type", "application/json")
 	w.WriteHeader(http.StatusInternalServerError)
-	byt, err := json.Marshal(NewError(err))
+	byt, err := json.Marshal(routingModel.NewError(err))
 	if err != nil {
 		fmt.Printf("error: %v", err)
 		w.Write([]byte("error marshling"))
@@ -31,7 +34,7 @@ func handleError(w http.ResponseWriter, err error) {
 	}
 }
 
-func (sh *SimpleHandler) handleResponse(w http.ResponseWriter, req *Request, res *Response) {
+func (sh *SimpleHandler) handleResponse(w http.ResponseWriter, req *routingModel.Request, res *routingModel.Response) {
 	byt, err := json.Marshal(res.Body)
 	if err != nil {
 		if sh.errorHandler != nil {
@@ -52,18 +55,18 @@ func (sh *SimpleHandler) handleResponse(w http.ResponseWriter, req *Request, res
 	w.Write(byt)
 }
 
-func (sh *SimpleHandler) GetHandler(controller func(*Request) (*Response, error)) func(http.ResponseWriter, *http.Request) {
+func (sh *SimpleHandler) GetHandler(controller func(*routingModel.Request) (*routingModel.Response, error)) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		lgr := loggerFactory.GetLogger(r.URL.Path, r.Host)
-		req := &Request{
+		req := &routingModel.Request{
 			RawRequest: r,
 			Logger:     lgr,
 		}
 		var processingError error
-		var res *Response
+		var res *routingModel.Response
 
-		var tempRes *Response
-		var tempReq *Request
+		var tempRes *routingModel.Response
+		var tempReq *routingModel.Request
 
 		for _, rp := range sh.GetRequestProcessors(r.URL.Path) {
 			tempReq, processingError, res = rp.GetProcessor()(req)
@@ -113,8 +116,8 @@ func (sh *SimpleHandler) GetHandler(controller func(*Request) (*Response, error)
 	}
 }
 
-func (sh *SimpleHandler) GetRequestProcessors(path string) []RequestProcessor {
-	rps := make([]RequestProcessor, 0)
+func (sh *SimpleHandler) GetRequestProcessors(path string) []routingI.RequestProcessor {
+	rps := make([]routingI.RequestProcessor, 0)
 	for _, rp := range sh.requestMiddlewares {
 		if rp.GetRegex().MatchString(path) {
 			rps = append(rps, rp)
@@ -123,8 +126,8 @@ func (sh *SimpleHandler) GetRequestProcessors(path string) []RequestProcessor {
 	return rps
 }
 
-func (sh *SimpleHandler) GetResponseProcessors(path string) []ResponseProcessor {
-	rps := make([]ResponseProcessor, 0)
+func (sh *SimpleHandler) GetResponseProcessors(path string) []routingI.ResponseProcessor {
+	rps := make([]routingI.ResponseProcessor, 0)
 	for _, rp := range sh.responseMiddlewares {
 		if rp.GetRegex().MatchString(path) {
 			rps = append(rps, rp)
@@ -133,18 +136,18 @@ func (sh *SimpleHandler) GetResponseProcessors(path string) []ResponseProcessor 
 	return rps
 }
 
-func (sh *SimpleHandler) AddRequestProcessor(regex string, priority int, processor RequestProcessor) {
+func (sh *SimpleHandler) AddRequestProcessor(regex string, priority int, processor routingI.RequestProcessor) {
 	if sh.requestMiddlewares == nil {
-		sh.requestMiddlewares = make([]RequestProcessor, 0)
+		sh.requestMiddlewares = make([]routingI.RequestProcessor, 0)
 	}
 	processor.SetRegex(regex)
 	processor.SetPriority(priority)
 	sh.requestMiddlewares = append(sh.requestMiddlewares, processor)
 }
 
-func (sh *SimpleHandler) AddResponseProcessor(regex string, priority int, processor ResponseProcessor) {
+func (sh *SimpleHandler) AddResponseProcessor(regex string, priority int, processor routingI.ResponseProcessor) {
 	if sh.responseMiddlewares == nil {
-		sh.responseMiddlewares = make([]ResponseProcessor, 0)
+		sh.responseMiddlewares = make([]routingI.ResponseProcessor, 0)
 	}
 	processor.SetRegex(regex)
 	processor.SetPriority(priority)
@@ -152,11 +155,11 @@ func (sh *SimpleHandler) AddResponseProcessor(regex string, priority int, proces
 
 }
 
-func (sh *SimpleHandler) GetErrorHandler() *func(error, *Request, *Response) error {
+func (sh *SimpleHandler) GetErrorHandler() *func(error, *routingModel.Request, *routingModel.Response) error {
 	return sh.errorHandler
 }
 
-func (sh *SimpleHandler) SetErrorHandler(fun *func(error, *Request, *Response) error) {
+func (sh *SimpleHandler) SetErrorHandler(fun *func(error, *routingModel.Request, *routingModel.Response) error) {
 	sh.errorHandler = fun
 }
 

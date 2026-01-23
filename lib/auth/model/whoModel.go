@@ -1,4 +1,4 @@
-package lib
+package authModel
 
 type WhoModel struct {
 	CreatedBy uint

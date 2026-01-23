@@ -1,4 +1,4 @@
-package lib
+package routingModel
 
 import (
 	"net/http"
@@ -7,13 +7,13 @@ import (
 )
 
 type Request struct {
-	RawRequest       *http.Request
-	RawBody          []byte
-	Body             interface{}
-	RequestPrincipal *Principal
-	QueryParam       map[string]string
-	Logger           *zerolog.Logger
-	metaData         map[string]interface{}
+	RawRequest *http.Request
+	RawBody    []byte
+	Body       interface{}
+	// RequestPrincipal *lib.Principal
+	QueryParam map[string]string
+	Logger     *zerolog.Logger
+	metaData   map[string]interface{}
 }
 
 func (r *Request) GetMetaData(key string) interface{} {

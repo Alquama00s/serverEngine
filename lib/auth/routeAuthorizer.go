@@ -1,13 +1,18 @@
-package lib
+package auth
 
 import (
 	"fmt"
 	"math"
 	"net/http"
+
+	authModel "github.com/Alquama00s/serverEngine/lib/auth/model"
+	routing "github.com/Alquama00s/serverEngine/lib/routing"
+	routingI "github.com/Alquama00s/serverEngine/lib/routing/interface"
+	routingModel "github.com/Alquama00s/serverEngine/lib/routing/model"
 )
 
 type RouteAuthorizer interface {
-	GetRequestProcessor() RequestProcessor
+	GetRequestProcessor() routingI.RequestProcessor
 }
 
 type SimpleRouteAuthorizer struct {
@@ -78,11 +83,11 @@ func (sr *SimpleRouteAuthorizer) IsTokenValid(token string) bool {
 	return true
 }
 
-func (sr *SimpleRouteAuthorizer) GetRequestProcessor() RequestProcessor {
-	rp := &SimpleReqMiddleWare{}
+func (sr *SimpleRouteAuthorizer) GetRequestProcessor() routingI.RequestProcessor {
+	rp := &routing.SimpleReqMiddleWare{}
 	rp.SetPriority(math.MinInt + 1)
 	rp.SetRegex(sr.pathRegex)
-	rp.Process(func(req *Request) (*Request, error, *Response) {
+	rp.Process(func(req *routingModel.Request) (*routingModel.Request, error, *routingModel.Response) {
 
 		req.Logger.Info().
 			Str("pkg", "serverEngine.lib.SimpleRouteAuthorizer").
@@ -97,21 +102,23 @@ func (sr *SimpleRouteAuthorizer) GetRequestProcessor() RequestProcessor {
 			return req, nil, nil
 		}
 
-		if req.RequestPrincipal == nil || !req.RequestPrincipal.IsAuthenticated() {
-			return req, nil, NewRestResponse().
-				SetBody(NewErrorMessage("Unauthorized User is not authenticated")).
+		principal := authModel.ParsePrincipal(req)
+
+		if principal == nil || !principal.IsAuthenticated() {
+			return req, nil, routingModel.NewRestResponse().
+				SetBody(routingModel.NewErrorMessage("Unauthorized User is not authenticated")).
 				SetStatus(http.StatusUnauthorized)
 		}
 
 		if len(sr.privileges) > 0 {
 			if sr.isPrevilegeAnd {
-				if !req.RequestPrincipal.AndPrivilegeAuth(sr.privileges...) {
-					return nil, nil, NewRestResponse().SetBody(NewErrorMessage("does not have all required privileges")).
+				if !principal.AndPrivilegeAuth(sr.privileges...) {
+					return nil, nil, routingModel.NewRestResponse().SetBody(routingModel.NewErrorMessage("does not have all required privileges")).
 						SetStatus(http.StatusUnauthorized)
 				}
 			} else {
-				if !req.RequestPrincipal.OrPrivilegeAuth(sr.privileges...) {
-					return nil, nil, NewRestResponse().SetBody(NewErrorMessage("does not have required privileges")).
+				if !principal.OrPrivilegeAuth(sr.privileges...) {
+					return nil, nil, routingModel.NewRestResponse().SetBody(routingModel.NewErrorMessage("does not have required privileges")).
 						SetStatus(http.StatusUnauthorized)
 				}
 			}
@@ -119,21 +126,21 @@ func (sr *SimpleRouteAuthorizer) GetRequestProcessor() RequestProcessor {
 
 		if len(sr.roles) > 0 {
 			if sr.isRoleAnd {
-				if !req.RequestPrincipal.AndRoleAuth(sr.roles...) {
-					return nil, nil, NewRestResponse().SetBody(NewErrorMessage("does not have all required roles")).
+				if !principal.AndRoleAuth(sr.roles...) {
+					return nil, nil, routingModel.NewRestResponse().SetBody(routingModel.NewErrorMessage("does not have all required roles")).
 						SetStatus(http.StatusUnauthorized)
 				}
 			} else {
-				if !req.RequestPrincipal.OrRoleAuth(sr.roles...) {
-					return nil, nil, NewRestResponse().SetBody(NewErrorMessage("does not have required roles")).
+				if !principal.OrRoleAuth(sr.roles...) {
+					return nil, nil, routingModel.NewRestResponse().SetBody(routingModel.NewErrorMessage("does not have required roles")).
 						SetStatus(http.StatusUnauthorized)
 				}
 			}
 		}
 
-		if !sr.IsTokenValid(req.RequestPrincipal.tokenType) {
-			return nil, nil, NewRestResponse().
-				SetBody(NewErrorMessage(fmt.Sprintf("requre one of %s authentication", sr.__tokenTypes))).
+		if !sr.IsTokenValid(principal.GetTokenType()) {
+			return nil, nil, routingModel.NewRestResponse().
+				SetBody(routingModel.NewErrorMessage(fmt.Sprintf("requre one of %s authentication", sr.__tokenTypes))).
 				SetStatus(http.StatusUnauthorized)
 		}
 

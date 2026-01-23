@@ -1,8 +1,12 @@
-package lib
+package auth
 
 import (
 	"errors"
 	"strings"
+
+	authModel "github.com/Alquama00s/serverEngine/lib/auth/model"
+
+	routingModel "github.com/Alquama00s/serverEngine/lib/routing/model"
 )
 
 type DelegatingAuthenticator struct {
@@ -20,14 +24,14 @@ func (d *DelegatingAuthenticator) AddAuthenticator(name string, authenticator Au
 	return d
 }
 
-func (j *DelegatingAuthenticator) ParsePrincipal(req *Request) error {
+func (j *DelegatingAuthenticator) ParsePrincipal(req *routingModel.Request) error {
 	if req == nil || req.RawRequest == nil {
 		return errors.New("invalid request")
 	}
 
 	authHeader := req.RawRequest.Header.Get("Authorization")
 	if authHeader == "" {
-		req.RequestPrincipal = GuestPrincipal()
+		req.SetMetaData("auth.principal", authModel.GuestPrincipal())
 		return nil
 	}
 
