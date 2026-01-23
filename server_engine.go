@@ -6,9 +6,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Alquama00s/serverEngine/lib"
-	"github.com/Alquama00s/serverEngine/loggerFactory"
-	"github.com/Alquama00s/serverEngine/registrar"
+	routing "github.com/Alquama00s/serverEngine/lib/routing"
+
+	"github.com/Alquama00s/serverEngine/lib/logging/loggerFactory"
+	"github.com/Alquama00s/serverEngine/lib/routing/registrar"
 )
 
 var (
@@ -22,8 +23,8 @@ func Registrar() *registrar.DefaultRegistrar {
 		logger.Info().Msg("Initializing route registrar")
 		if routeRegistrar == nil {
 			routeRegistrar = &registrar.DefaultRegistrar{
-				Routers: make(map[string]*lib.Router),
-				Handler: &lib.SimpleHandler{},
+				Routers: make(map[string]*routing.Router),
+				Handler: &routing.SimpleHandler{},
 			}
 		}
 	})
