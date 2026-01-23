@@ -5,6 +5,7 @@ import (
 	"math"
 	"net/http"
 
+	"github.com/Alquama00s/serverEngine"
 	authModel "github.com/Alquama00s/serverEngine/lib/auth/model"
 	routing "github.com/Alquama00s/serverEngine/lib/routing"
 	routingI "github.com/Alquama00s/serverEngine/lib/routing/interface"
@@ -148,4 +149,8 @@ func (sr *SimpleRouteAuthorizer) GetRequestProcessor() routingI.RequestProcessor
 	})
 
 	return rp
+}
+
+func (sr *SimpleRouteAuthorizer) Apply() {
+	serverEngine.Registrar().RegisterRequestProcessors(sr.GetRequestProcessor())
 }

@@ -154,3 +154,7 @@ func (j *JWTAuthenticator) CreateToken(priv, role []string, userId uint, userNam
 
 	return token, err
 }
+
+func (a *JWTAuthenticator) Apply() {
+	ApplyAuthenticator(a)
+}

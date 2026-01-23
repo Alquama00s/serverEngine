@@ -3,14 +3,39 @@ package auth
 import (
 	"encoding/base64"
 	"errors"
+	"math"
+	"net/http"
 	"strings"
 
+	"github.com/Alquama00s/serverEngine"
 	authModel "github.com/Alquama00s/serverEngine/lib/auth/model"
 	routingModel "github.com/Alquama00s/serverEngine/lib/routing/model"
 )
 
 type Authenticator interface {
 	ParsePrincipal(*routingModel.Request) error
+}
+
+func ApplyAuthenticator(authenticator Authenticator) {
+	serverEngine.Registrar().RegisterPrioritizedSimpleReqProcessor("/*", math.MinInt,
+		func(req *routingModel.Request) (*routingModel.Request, error, *routingModel.Response) {
+			req.Logger.
+				Info().Str("pkg", "registrar.DefaultRegistrar").
+				Msg("Authenticating request ..")
+			err := authenticator.ParsePrincipal(req)
+			if err != nil {
+				_, ok := err.(*routingModel.ErrorResponse)
+				if ok {
+					return nil, nil, routingModel.NewRestResponse().
+						SetBody(err).
+						SetStatus(http.StatusForbidden)
+				}
+				return nil, err, routingModel.NewRestResponse().
+					SetBody(routingModel.NewErrorMessage("Could not authenticate"))
+			}
+
+			return req, nil, nil
+		})
 }
 
 type BasicAuthenticator struct {
@@ -57,6 +82,10 @@ func (a *BasicAuthenticator) ParsePrincipal(req *routingModel.Request) error {
 
 	return nil
 
+}
+
+func (a *BasicAuthenticator) Apply() {
+	ApplyAuthenticator(a)
 }
 
 func NewBasicAuthenticator() *BasicAuthenticator {
