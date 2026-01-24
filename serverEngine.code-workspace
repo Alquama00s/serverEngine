@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../serverEngine.wiki"
+		},
+		{
+			"path": "../serverEngineTests"
+		}
+	],
+	"settings": {}
+}
