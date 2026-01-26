@@ -128,7 +128,7 @@ func (j *JWTAuthenticator) CreateToken(priv, role []string, userId uint, userNam
 	claims := JWTClaims{
 		Roles:     role,
 		Privilege: priv,
-		UserId:    string(userId),
+		UserId:    strconv.Itoa(int(userId)),
 		Claims: jwt.Claims{
 			Issuer:    "assist",
 			Audience:  []string{userName},
