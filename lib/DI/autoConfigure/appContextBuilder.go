@@ -67,7 +67,7 @@ func (c *AppContextBuilder) RootPath(rootPath string) {
 
 }
 
-func (c *AppContextBuilder) generateCode() {
+func (c *AppContextBuilder) GenerateCode() {
 	shoudGenerateMainFile := false
 	err := os.RemoveAll(c.rootPath + "/generated")
 	if err != nil {
@@ -90,9 +90,4 @@ func (c *AppContextBuilder) generateCode() {
 		file := BuildInitFile(c.initImportLines, c.initLines)
 		WriteFile(c, file)
 	}
-}
-
-func (c *AppContextBuilder) BootStrap() {
-	c.generateCode()
-
 }

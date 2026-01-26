@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/Alquama00s/serverEngine/lib/DI"
-	autoconfigure "github.com/Alquama00s/serverEngine/lib/DI/autoConfigure"
 )
 
 // func TestScanner(t *testing.T) {
@@ -21,5 +20,4 @@ import (
 func TestGen(t *testing.T) {
 	os.Chdir("../../test_server")
 	DI.InitialiseContextBuilder(".")
-	autoconfigure.GetAppContextBuilder().BootStrap()
 }
