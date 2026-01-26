@@ -28,9 +28,13 @@ func GetAppContextBuilder() *AppContextBuilder {
 
 func InitAppContextBuilder(rootPath string) *AppContextBuilder {
 	_appContextBuilderOnce.Do(func() {
+		err := os.Chdir(rootPath)
+		if err != nil {
+			panic(err)
+		}
 		_appContextBuilderLogger = loggerFactory.GetLogger("AppContextBuilder")
 		_appContextBuilder = &AppContextBuilder{
-			rootPath: rootPath,
+			rootPath: ".",
 			parsers:  make(map[string]func([]*autoConfigModel.ScannedElement, *AppContext) []*autoConfigModel.GeneratedFile),
 		}
 	})

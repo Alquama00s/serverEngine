@@ -1,7 +1,6 @@
 package autoconfigure
 
 import (
-	"os"
 	"testing"
 
 	"github.com/Alquama00s/serverEngine/lib/DI"
@@ -18,6 +17,5 @@ import (
 // }
 
 func TestGen(t *testing.T) {
-	os.Chdir("../../test_server")
-	DI.InitialiseContextBuilder(".")
+	DI.InitialiseContextBuilder("../../test_server")
 }
