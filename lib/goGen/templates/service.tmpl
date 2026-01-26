@@ -1,0 +1,12 @@
+package generatedCmd
+
+import autoconfigure "github.com/Alquama00s/serverEngine/lib/DI/autoConfigure"
+
+func RegisterService() {
+	serviceList := autoconfigure.Scan("@service","{{.root}}")
+	for _,s := range serviceList{
+		ctx := autoconfigure.GetAppContext()
+		ctx.Register("@service"+s.GetName(),s.GetName()())
+	}
+	
+}

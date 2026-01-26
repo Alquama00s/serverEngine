@@ -1,0 +1,61 @@
+//generated file 
+package repo
+
+import (
+	"server/internal/common"
+	"server/internal/model"
+	"sync"
+
+	"gorm.io/gorm"
+)
+
+type {{.StructName}}Repo struct {
+	repo common.Repo[string]
+}
+
+var (
+	{{.structName}}Repo *{{.StructName}}Repo
+	{{.structName}}Once   sync.Once
+)
+
+func New{{.StructName}}Repo(repo common.Repo[string]) *{{.StructName}}Repo {
+	{{.structName}}Once.Do(func() {
+		if {{.structName}}Repo == nil {
+			if repo == nil {
+				repo = common.NewPgRepo()
+			}
+			{{.structName}}Repo = &{{.StructName}}Repo{
+				repo: repo,
+			}
+		}
+	})
+	return {{.structName}}Repo
+}
+
+func (s *{{.StructName}}Repo) Get(id string, tx *gorm.DB) (*model.{{.StructName}}, error) {
+	mod, err := s.repo.Get(id, &model.{{.StructName}}{}, tx)
+	if err != nil {
+		return nil, err
+	}
+	return mod.(*model.{{.StructName}}), nil
+}
+
+func (s *{{.StructName}}Repo) Create(data *model.{{.StructName}}, tx *gorm.DB) (*model.{{.StructName}}, error) {
+	createdData, err := s.repo.Create(data, tx)
+	if err != nil {
+		return nil, err
+	}
+	return createdData.(*model.{{.StructName}}), err
+}
+
+func (s *{{.StructName}}Repo) Update(data *model.{{.StructName}}, tx *gorm.DB) (*model.{{.StructName}}, error) {
+	createdData, err := s.repo.Update(data, tx)
+	if err != nil {
+		return nil, err
+	}
+	return createdData.(*model.{{.StructName}}), err
+}
+
+func (s *{{.StructName}}Repo) Delete(data *model.{{.StructName}}, tx *gorm.DB) error {
+	return s.repo.Delete(data, tx)
+}
