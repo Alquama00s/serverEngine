@@ -13,6 +13,10 @@ import (
 )
 
 func getModuleName(root string) string {
+	err := os.Chdir(root)
+	if err != nil {
+		panic(err)
+	}
 	p, err := os.Getwd()
 	if err != nil {
 		panic(err)
