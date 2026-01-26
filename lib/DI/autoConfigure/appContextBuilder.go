@@ -10,8 +10,10 @@ import (
 )
 
 type AppContextBuilder struct {
-	rootPath string
-	parsers  map[string]func(*autoConfigModel.ScannedElement, *AppContext) string
+	rootPath        string
+	initImportLines []string
+	initLines       []string
+	parsers         map[string]func([]*autoConfigModel.ScannedElement, *AppContext) []*autoConfigModel.GeneratedFile
 }
 
 var (
@@ -29,13 +31,13 @@ func InitAppContextBuilder(rootPath string) *AppContextBuilder {
 		_appContextBuilderLogger = loggerFactory.GetLogger("AppContextBuilder")
 		_appContextBuilder = &AppContextBuilder{
 			rootPath: rootPath,
-			parsers:  make(map[string]func(*autoConfigModel.ScannedElement, *AppContext) string),
+			parsers:  make(map[string]func([]*autoConfigModel.ScannedElement, *AppContext) []*autoConfigModel.GeneratedFile),
 		}
 	})
 	return _appContextBuilder
 }
 
-func (c *AppContextBuilder) RegisterParser(name string, parser func(*autoConfigModel.ScannedElement, *AppContext) string) {
+func (c *AppContextBuilder) RegisterParser(name string, parser func([]*autoConfigModel.ScannedElement, *AppContext) []*autoConfigModel.GeneratedFile) {
 	_appContextBuilderLogger.Debug().Msg("registering parser" + name)
 	_, exist := c.parsers[name]
 	if exist {
@@ -44,11 +46,29 @@ func (c *AppContextBuilder) RegisterParser(name string, parser func(*autoConfigM
 	c.parsers[name] = parser
 }
 
+func (c *AppContextBuilder) ImportLine(il string) *AppContextBuilder {
+	if c.initImportLines == nil {
+		c.initImportLines = []string{}
+	}
+	c.initImportLines = append(c.initImportLines, il)
+	return c
+}
+
+func (c *AppContextBuilder) InitLine(il string) *AppContextBuilder {
+	if c.initLines == nil {
+		c.initLines = []string{}
+	}
+	c.initLines = append(c.initLines, il)
+	return c
+}
+
 func (c *AppContextBuilder) RootPath(rootPath string) {
 	c.rootPath = rootPath
 
 }
-func (c *AppContextBuilder) BootStrap() {
+
+func (c *AppContextBuilder) generateCode() {
+	shoudGenerateMainFile := false
 	err := os.RemoveAll(c.rootPath + "/generated")
 	if err != nil {
 		panic(err)
@@ -58,17 +78,21 @@ func (c *AppContextBuilder) BootStrap() {
 	ctx := InitAppContext(c.rootPath)
 	for k, v := range c.parsers {
 		scannedElements := Scan(k, c.rootPath)
-		for _, se := range scannedElements {
-			file := BuildFile(se)
-			file.Contents = v(se, ctx)
-			err = os.MkdirAll(c.rootPath+"/generated/"+file.GetPath(), 0755)
-			if err != nil {
-				panic(err)
-			}
-			err = os.WriteFile(c.rootPath+"/generated"+file.GetPath()+"/"+file.FileName, []byte(file.Contents), 0644)
-			if err != nil {
-				panic(err)
+		if len(scannedElements) > 0 {
+			shoudGenerateMainFile = true
+			files := v(scannedElements, ctx)
+			for _, f := range files {
+				WriteFile(c, f)
 			}
 		}
 	}
+	if shoudGenerateMainFile {
+		file := BuildInitFile(c.initImportLines, c.initLines)
+		WriteFile(c, file)
+	}
+}
+
+func (c *AppContextBuilder) BootStrap() {
+	c.generateCode()
+
 }

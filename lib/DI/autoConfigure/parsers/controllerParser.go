@@ -7,14 +7,14 @@ import (
 	autoConfigModel "github.com/Alquama00s/serverEngine/lib/DI/autoConfigure/model"
 )
 
-func ParseService(se []*autoConfigModel.ScannedElement, ac *autoconfigure.AppContext) []*autoConfigModel.GeneratedFile {
+func ParseController(se []*autoConfigModel.ScannedElement, ac *autoconfigure.AppContext) []*autoConfigModel.GeneratedFile {
 	res := strings.Builder{}
 	importsMap := make(map[string]struct{})
 	moduleName := ac.GetModuleName()
 	res.WriteString(`
-package generatedCmd
+package generatedController
 
-import autoconfigure "github.com/Alquama00s/serverEngine/lib/DI/autoConfigure"
+import "github.com/Alquama00s/serverEngine"
 `)
 	for _, s := range se {
 		_, exists := importsMap[s.GetImportLine(moduleName)]
@@ -25,15 +25,13 @@ import autoconfigure "github.com/Alquama00s/serverEngine/lib/DI/autoConfigure"
 	}
 
 	res.WriteString(`
-func RegisterService() {
-	ctx := autoconfigure.GetAppContext()
+func RegisterControllers() {
+	reg := serverEngine.Registrar()
 	`)
 	for _, s := range se {
-		temp := `ctx.Register("@service"+`
-		temp += "\"" + s.GetName() + "\""
-		temp += ","
+		temp := "reg.RegisterControllerSet(&"
 		temp += s.GetPackageName() + "." + s.GetName()
-		temp += "())"
+		temp += "{})"
 		temp += "\n"
 		res.WriteString(temp)
 	}
@@ -41,8 +39,8 @@ func RegisterService() {
 }
 	`)
 
-	gf := autoConfigModel.GetNewGeneratedFile("/service")
-	gf.FileName = "allServices.gen.go"
+	gf := autoConfigModel.GetNewGeneratedFile("/controller")
+	gf.FileName = "allController.gen.go"
 	gf.Contents = res.String()
 
 	return []*autoConfigModel.GeneratedFile{gf}

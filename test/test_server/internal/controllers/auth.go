@@ -11,6 +11,7 @@ import (
 	"github.com/Alquama00s/serverEngine/lib/utils/serverUtils"
 )
 
+// @Controller
 type AuthController struct {
 	*service.AuthService
 	*auth.JWTAuthenticator

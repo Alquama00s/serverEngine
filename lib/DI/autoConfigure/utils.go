@@ -55,23 +55,53 @@ func Scan(comment string, root string) []*autoConfigModel.ScannedElement {
 		}
 
 		for _, decl := range file.Decls {
+			// Handle function declarations
 			fn, ok := decl.(*ast.FuncDecl)
-			if !ok || fn.Doc == nil {
+			if ok && fn.Doc != nil {
+				for _, c := range fn.Doc.List {
+					if strings.Contains(c.Text, comment) {
+						se := autoConfigModel.NewFuncElement(fn.Name.Name).
+							Doc(c.Text).PackageName(file.Name.Name)
+
+						splittedPath := strings.Split(path, "/")
+						se.FileName(splittedPath[len(splittedPath)-1])
+						splittedPath = splittedPath[:len(splittedPath)-1]
+
+						se.Path(strings.Join(splittedPath, "/"))
+
+						res = append(res, se)
+					}
+				}
 				continue
 			}
 
-			for _, c := range fn.Doc.List {
-				if strings.Contains(c.Text, comment) {
-					se := autoConfigModel.NewFuncElement(fn.Name.Name).
-						Doc(c.Text).PackageName(file.Name.Name)
+			// Handle struct declarations
+			gd, ok := decl.(*ast.GenDecl)
+			if ok && gd.Tok == token.TYPE && gd.Doc != nil {
+				for _, c := range gd.Doc.List {
+					if strings.Contains(c.Text, comment) {
+						for _, spec := range gd.Specs {
+							ts, ok := spec.(*ast.TypeSpec)
+							if !ok {
+								continue
+							}
+							// Only process struct types
+							if _, ok := ts.Type.(*ast.StructType); !ok {
+								continue
+							}
 
-					splittedPath := strings.Split(path, "/")
-					se.FileName(splittedPath[len(splittedPath)-1])
-					splittedPath = splittedPath[:len(splittedPath)-1]
+							se := autoConfigModel.NewStructElement(ts.Name.Name).
+								Doc(c.Text).PackageName(file.Name.Name)
 
-					se.Path(strings.Join(splittedPath, "/"))
+							splittedPath := strings.Split(path, "/")
+							se.FileName(splittedPath[len(splittedPath)-1])
+							splittedPath = splittedPath[:len(splittedPath)-1]
 
-					res = append(res, se)
+							se.Path(strings.Join(splittedPath, "/"))
+
+							res = append(res, se)
+						}
+					}
 				}
 			}
 		}
@@ -119,4 +149,54 @@ func BuildFile(se *autoConfigModel.ScannedElement) *autoConfigModel.GeneratedFil
 	gf := autoConfigModel.GetNewGeneratedFile("/" + se.GetPackageName())
 	gf.FileName = se.GetName() + ".gen.go"
 	return gf
+}
+
+func BuildInitFile(importLines []string, funCalls []string) *autoConfigModel.GeneratedFile {
+	res := strings.Builder{}
+	res.WriteString(`
+		package generated
+
+import (
+	`)
+	for _, il := range importLines {
+		res.WriteString(il + "\n")
+	}
+
+	res.WriteString(`
+	"github.com/Alquama00s/serverEngine"
+	"github.com/Alquama00s/serverEngine/lib/routing/registrar"
+)
+
+func init() {
+	`)
+
+	for _, fc := range funCalls {
+		res.WriteString(fc + "\n")
+	}
+
+	res.WriteString(`
+	}
+
+func InitialiseServer() *registrar.DefaultRegistrar {
+	return serverEngine.Registrar()
+}
+	`)
+
+	gc := autoConfigModel.GetNewGeneratedFile("")
+	gc.FileName = "init.gen.go"
+	gc.Contents = res.String()
+	return gc
+}
+
+func WriteFile(c *AppContextBuilder, file *autoConfigModel.GeneratedFile) {
+
+	err := os.MkdirAll(c.rootPath+"/generated/"+file.GetPath(), 0755)
+	if err != nil {
+		panic(err)
+	}
+	err = os.WriteFile(c.rootPath+"/generated"+file.GetPath()+"/"+file.FileName, []byte(file.Contents), 0644)
+	if err != nil {
+		panic(err)
+	}
+
 }
