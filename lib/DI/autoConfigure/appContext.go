@@ -24,7 +24,7 @@ func GetAppContext() *AppContext {
 
 func InitAppContext(root string) *AppContext {
 	_appContextOnce.Do(func() {
-		_appContextLogger = loggerFactory.GetLogger()
+		_appContextLogger = loggerFactory.GetLogger("AppContext")
 		m := getModuleName(root)
 		_appContext = &AppContext{
 			moduleName: m,

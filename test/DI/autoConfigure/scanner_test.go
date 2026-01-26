@@ -4,6 +4,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/Alquama00s/serverEngine/lib/DI"
 	autoconfigure "github.com/Alquama00s/serverEngine/lib/DI/autoConfigure"
 )
 
@@ -19,5 +20,6 @@ import (
 
 func TestGen(t *testing.T) {
 	os.Chdir("../../test_server")
-	autoconfigure.WriteService(".")
+	DI.InitialiseContextBuilder(".")
+	autoconfigure.GetAppContextBuilder().BootStrap()
 }

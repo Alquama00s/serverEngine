@@ -5,7 +5,7 @@ import (
 	autoConfigParsers "github.com/Alquama00s/serverEngine/lib/DI/autoConfigure/parsers"
 )
 
-func initialiseContext(rootPath string) {
-	ctxBuilder := autoconfigure.GetAppContextBuilder(rootPath)
+func InitialiseContextBuilder(rootPath string) {
+	ctxBuilder := autoconfigure.InitAppContextBuilder(rootPath)
 	ctxBuilder.RegisterParser("@service", autoConfigParsers.ParseService)
 }

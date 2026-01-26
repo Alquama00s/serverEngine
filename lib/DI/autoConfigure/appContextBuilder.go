@@ -20,9 +20,13 @@ var (
 	_appContextBuilderLogger *zerolog.Logger
 )
 
-func GetAppContextBuilder(rootPath string) *AppContextBuilder {
+func GetAppContextBuilder() *AppContextBuilder {
+	return _appContextBuilder
+}
+
+func InitAppContextBuilder(rootPath string) *AppContextBuilder {
 	_appContextBuilderOnce.Do(func() {
-		_appContextBuilderLogger = loggerFactory.GetLogger()
+		_appContextBuilderLogger = loggerFactory.GetLogger("AppContextBuilder")
 		_appContextBuilder = &AppContextBuilder{
 			rootPath: rootPath,
 			parsers:  make(map[string]func(*autoConfigModel.ScannedElement, *AppContext) string),
@@ -32,10 +36,10 @@ func GetAppContextBuilder(rootPath string) *AppContextBuilder {
 }
 
 func (c *AppContextBuilder) RegisterParser(name string, parser func(*autoConfigModel.ScannedElement, *AppContext) string) {
-	_appContextLogger.Debug().Msg("registering parser" + name)
-	_, ok := c.parsers[name]
-	if !ok {
-		panic(ok)
+	_appContextBuilderLogger.Debug().Msg("registering parser" + name)
+	_, exist := c.parsers[name]
+	if exist {
+		panic("parser already exist " + name)
 	}
 	c.parsers[name] = parser
 }
@@ -50,7 +54,7 @@ func (c *AppContextBuilder) BootStrap() {
 		panic(err)
 	}
 
-	_appContextLogger.Debug().Msg("registered root path" + c.rootPath)
+	_appContextBuilderLogger.Debug().Msg("registered root path" + c.rootPath)
 	ctx := InitAppContext(c.rootPath)
 	for k, v := range c.parsers {
 		scannedElements := Scan(k, c.rootPath)
