@@ -14,8 +14,11 @@ func ParseInitializer(se []*autoConfigModel.ScannedElement, ac *autoconfigure.Ap
 	res.WriteString(`
 package generatedInitializer
 
-import "github.com/Alquama00s/serverEngine"
 `)
+
+	if len(se) > 0 {
+		res.WriteString("import \"github.com/Alquama00s/serverEngine\"\n")
+	}
 	for _, s := range se {
 		_, exists := importsMap[s.GetImportLine(moduleName)]
 		if !exists {
@@ -26,8 +29,11 @@ import "github.com/Alquama00s/serverEngine"
 
 	res.WriteString(`
 func RegisterInitializers() {
-	reg := serverEngine.Registrar()
 	`)
+
+	if len(se) > 0 {
+		res.WriteString("reg := serverEngine.Registrar()\n")
+	}
 	for _, s := range se {
 		temp := "reg.RegisterInitializers(&"
 		temp += s.GetPackageName() + "." + s.GetName()

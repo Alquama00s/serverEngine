@@ -11,7 +11,6 @@ import (
 	routingModel "github.com/Alquama00s/serverEngine/lib/routing/model"
 )
 
-// @Init
 type AuthMiddleware struct {
 }
 

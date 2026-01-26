@@ -26,8 +26,10 @@ import autoconfigure "github.com/Alquama00s/serverEngine/lib/DI/autoConfigure"
 
 	res.WriteString(`
 func RegisterService() {
-	ctx := autoconfigure.GetAppContext()
 	`)
+	if len(se) > 0 {
+		res.WriteString("ctx := autoconfigure.GetAppContext()\n")
+	}
 	for _, s := range se {
 		temp := `ctx.Register("@service"+`
 		temp += "\"" + s.GetName() + "\""

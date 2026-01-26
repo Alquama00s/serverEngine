@@ -82,12 +82,10 @@ func (c *AppContextBuilder) GenerateCode() {
 	ctx := InitAppContext(c.rootPath)
 	for k, v := range c.parsers {
 		scannedElements := Scan(k, c.rootPath)
-		if len(scannedElements) > 0 {
-			shoudGenerateMainFile = true
-			files := v(scannedElements, ctx)
-			for _, f := range files {
-				WriteFile(c, f)
-			}
+		shoudGenerateMainFile = true
+		files := v(scannedElements, ctx)
+		for _, f := range files {
+			WriteFile(c, f)
 		}
 	}
 	if shoudGenerateMainFile {
