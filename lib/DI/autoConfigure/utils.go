@@ -168,7 +168,6 @@ import (
 
 	res.WriteString(`
 	"github.com/Alquama00s/serverEngine"
-	"github.com/Alquama00s/serverEngine/lib/routing/registrar"
 )
 
 func init() {
@@ -181,8 +180,8 @@ func init() {
 	res.WriteString(`
 }
 
-func InitialiseServer() *registrar.DefaultRegistrar {
-	return serverEngine.Registrar()
+func InitialiseServer() {
+	serverEngine.Sereve()
 }
 	`)
 
