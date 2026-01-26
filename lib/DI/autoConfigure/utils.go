@@ -158,7 +158,7 @@ func BuildFile(se *autoConfigModel.ScannedElement) *autoConfigModel.GeneratedFil
 func BuildInitFile(importLines []string, funCalls []string) *autoConfigModel.GeneratedFile {
 	res := strings.Builder{}
 	res.WriteString(`
-		package generated
+package generated
 
 import (
 	`)
@@ -179,7 +179,7 @@ func init() {
 	}
 
 	res.WriteString(`
-	}
+}
 
 func InitialiseServer() *registrar.DefaultRegistrar {
 	return serverEngine.Registrar()

@@ -17,5 +17,9 @@ func InitialiseContextBuilder(rootPath string) {
 	ctxBuilder.ImportLine("generatedController \"serverEngineTests/generated/controller\"")
 	ctxBuilder.InitLine("generatedController.RegisterControllers()")
 
+	ctxBuilder.RegisterParser("@Init", autoConfigParsers.ParseInitializer)
+	ctxBuilder.ImportLine("generatedInitializer \"serverEngineTests/generated/initializer\"")
+	ctxBuilder.InitLine("generatedInitializer.RegisterInitializers()")
+
 	ctxBuilder.GenerateCode()
 }

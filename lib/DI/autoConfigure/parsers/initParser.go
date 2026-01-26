@@ -7,12 +7,12 @@ import (
 	autoConfigModel "github.com/Alquama00s/serverEngine/lib/DI/autoConfigure/model"
 )
 
-func ParseController(se []*autoConfigModel.ScannedElement, ac *autoconfigure.AppContext) []*autoConfigModel.GeneratedFile {
+func ParseInitializer(se []*autoConfigModel.ScannedElement, ac *autoconfigure.AppContext) []*autoConfigModel.GeneratedFile {
 	res := strings.Builder{}
 	importsMap := make(map[string]struct{})
 	moduleName := ac.GetModuleName()
 	res.WriteString(`
-package generatedController
+package generatedInitializer
 
 import "github.com/Alquama00s/serverEngine"
 `)
@@ -25,11 +25,11 @@ import "github.com/Alquama00s/serverEngine"
 	}
 
 	res.WriteString(`
-func RegisterControllers() {
+func RegisterInitializers() {
 	reg := serverEngine.Registrar()
 	`)
 	for _, s := range se {
-		temp := "reg.RegisterControllerSet(&"
+		temp := "reg.RegisterInitializers(&"
 		temp += s.GetPackageName() + "." + s.GetName()
 		temp += "{})"
 		temp += "\n"
@@ -39,8 +39,8 @@ func RegisterControllers() {
 }
 	`)
 
-	gf := autoConfigModel.GetNewGeneratedFile("/controller")
-	gf.FileName = "allControllers.gen.go"
+	gf := autoConfigModel.GetNewGeneratedFile("/initializer")
+	gf.FileName = "allInitializers.gen.go"
 	gf.Contents = res.String()
 
 	return []*autoConfigModel.GeneratedFile{gf}
