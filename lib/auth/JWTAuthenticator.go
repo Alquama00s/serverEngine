@@ -115,7 +115,7 @@ func (j *JWTAuthenticator) ParsePrincipal(req *routingModel.Request) error {
 	return nil
 }
 
-func (j *JWTAuthenticator) CreateToken(priv, role []string, userId uint, userName string) (string, error) {
+func (j *JWTAuthenticator) CreateToken(priv, role []string, userId string, userName string) (string, error) {
 	// role := make([]string, len(user.Roles))
 	// var priv []string
 	// for i, r := range user.Roles {
@@ -128,7 +128,7 @@ func (j *JWTAuthenticator) CreateToken(priv, role []string, userId uint, userNam
 	claims := JWTClaims{
 		Roles:     role,
 		Privilege: priv,
-		UserId:    strconv.Itoa(int(userId)),
+		UserId:    userId,
 		Claims: jwt.Claims{
 			Issuer:    "assist",
 			Audience:  []string{userName},
