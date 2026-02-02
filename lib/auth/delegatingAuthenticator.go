@@ -47,3 +47,7 @@ func (j *DelegatingAuthenticator) ParsePrincipal(req *routingModel.Request) erro
 	}
 	return err
 }
+
+func (a *DelegatingAuthenticator) Apply() {
+	ApplyAuthenticator(a)
+}
